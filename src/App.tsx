@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import UserCard from './components/UserCard';
+import SearchInput from './components/SearchInput';
+import Spinner from './components/Spinner';
 import useDebounce from './hooks/useDebounce';
 
 import type { InputChangeEvent, IUser } from './types';
@@ -28,12 +30,11 @@ function App() {
 
     try {
       const response = await fetch(API_USERS);
-      if (response.ok) {
-        const data: IUser[] = await response.json();
-        setUsers(data);
-      } else {
-        throw new Error(`Error: ${response.status}: ${response.statusText}`);
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
       }
+      const data: IUser[] = await response.json();
+      setUsers(data);
     } catch (error) {
       setUsers([]);
       if (error instanceof Error) {
@@ -56,26 +57,25 @@ function App() {
   }), [users, debouncedSearchTxt]);
 
   return (
-    <div>
-      <input
-        placeholder='Search'
-        value={searchTxt}
-        onChange={handleSearchInputChange} />
-      <button type='button' onClick={fetchUsers} disabled={isLoading}>{isLoading ? 'Loading...' : 'Reload List'}</button>
+    <div className="container">
+      {/* Search bar */}
+      <SearchInput onChange={handleSearchInputChange} />
 
-      {/* No Users */}
-      {!isLoading && !error && filteredUsers.length === 0 && <div> No Users Found.</div>}
-
-      {/* Loading State */}
-      {isLoading && <div>Loading...</div>}
-
-      {/* Error State */}
-      {error && <div>{error}</div>}
+      {/* UI Feedback */}
+      <section className="status-section">
+        {!isLoading && !error && filteredUsers.length === 0 && (
+          <p className="status-message no-users">No Users Found.</p>
+        )}
+        {isLoading && <Spinner />}
+        {!isLoading && error && <p className="status-message error">{error}</p>}
+      </section>
 
       {/* Users List */}
       {!isLoading && !error && filteredUsers.length > 0 &&
-        filteredUsers.map(({ id, name, phone, company: { name: companyName } }) =>
-          <UserCard key={id} name={name} phone={phone} companyName={companyName} />)}
+        <section className="user-grid">
+          {filteredUsers.map(({ id, name, phone, company: { name: companyName } }) =>
+            <UserCard key={id} name={name} phone={phone} companyName={companyName} />)}
+        </section>}
     </div>
   );
 };
