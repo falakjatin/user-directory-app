@@ -3,7 +3,9 @@
     --card-bg: #1e293b;
     --text: #f1f5f9;
     --text-muted: #94a3b8;
+    --error-text: #f87171;
     --accent: #34d399;
+    --spinner: #38bdf8;
     --card-shadow: rgba(0, 0, 0, 0.4);
 }
 
@@ -14,8 +16,7 @@ body {
     color: var(--text);
 }
 
-/* Container */
-.container {
+#root {
     max-width: 1200px;
     margin: 0 auto;
     padding: 2rem 1rem;
@@ -27,6 +28,7 @@ body {
     width: 100%;
     max-width: 400px;
     margin: 0 auto 2rem;
+    min-width: 240px;
 }
 
 .search-input {
@@ -66,6 +68,10 @@ body {
 
 /* Card */
 .user-card {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
     width: 100%;
     background-color: var(--card-bg);
     border-radius: 1rem;
@@ -73,7 +79,8 @@ body {
     box-shadow: 0 8px 16px var(--card-shadow);
     text-align: center;
     transition: transform 0.2s ease;
-    max-width: 320px;
+    max-width: 240px;
+    min-height: 160px;
 }
 
 .user-card:hover {
@@ -131,7 +138,7 @@ body {
 }
 
 .status-message.error {
-    color: #f87171;
+    color: var(--error-text);
 }
 
 .status-message.loading {
@@ -139,14 +146,14 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 0.75rem;
-    color: #38bdf8;
+    color: var(--spinner);
 }
 
 /* Spinner Animation */
 .spinner {
     width: 24px;
     height: 24px;
-    border: 3px solid #38bdf8;
+    border: 3px solid var(--spinner);
     border-top-color: transparent;
     border-radius: 50%;
     animation: spin 0.7s linear infinite;

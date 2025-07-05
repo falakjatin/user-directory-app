@@ -1,9 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import UserCard from './components/UserCard';
-import SearchInput from './components/SearchInput';
-import Spinner from './components/Spinner';
-import useDebounce from './hooks/useDebounce';
+import UserCard from './components/UserCard/UserCard';
+import SearchInput from './components/SearchInput/SearchInput';
+import Spinner from './components/Spinner/Spinner';
 
 import type { InputChangeEvent, IUser } from './types';
 import './App.css';
@@ -11,13 +10,10 @@ import './App.css';
 const API_USERS = 'https://jsonplaceholder.typicode.com/users';
 
 function App() {
-
   const [users, setUsers] = useState<IUser[]>([]);
   const [searchTxt, setSearchTxt] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
-
-  const debouncedSearchTxt = useDebounce(searchTxt);
 
   useEffect(() => {
     fetchUsers();
@@ -47,28 +43,26 @@ function App() {
     }
   };
 
-  const handleSearchInputChange = ({ target: { value } }: InputChangeEvent) => {
+  const handleSearchInputChange = useCallback(({ target: { value } }: InputChangeEvent) => {
     setSearchTxt(value);
-  };
+  }, []);
 
   // useMemo to optimize filtering for large user lists
   const filteredUsers = useMemo(() => users.filter(({ name }) => {
-    return name.toLowerCase().includes(debouncedSearchTxt.toLowerCase());
-  }), [users, debouncedSearchTxt]);
+    return name.toLowerCase().includes(searchTxt.toLowerCase());
+  }), [users, searchTxt]);
 
   return (
-    <div className="container">
-      {/* Search bar */}
+    <>
+      {/* Search Users */}
       <SearchInput onChange={handleSearchInputChange} />
 
       {/* UI Feedback */}
-      <section className="status-section">
-        {!isLoading && !error && filteredUsers.length === 0 && (
-          <p className="status-message no-users">No Users Found.</p>
-        )}
-        {isLoading && <Spinner />}
-        {!isLoading && error && <p className="status-message error">{error}</p>}
-      </section>
+      {!isLoading && !error && filteredUsers.length === 0 && (
+        <p className="status-message no-users">No Users Found.</p>
+      )}
+      {isLoading && <Spinner />}
+      {!isLoading && error && <p className="status-message error">{error}</p>}
 
       {/* Users List */}
       {!isLoading && !error && filteredUsers.length > 0 &&
@@ -76,7 +70,7 @@ function App() {
           {filteredUsers.map(({ id, name, phone, company: { name: companyName } }) =>
             <UserCard key={id} name={name} phone={phone} companyName={companyName} />)}
         </section>}
-    </div>
+    </>
   );
 };
 
